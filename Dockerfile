@@ -1,5 +1,5 @@
-# Base image
-FROM ubuntu:20.04
+# Use Ubuntu 20.04 as the base image
+FROM ubuntu:24.04.1
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -9,22 +9,17 @@ RUN apt-get update && apt-get install -y \
     squid \
     apache2-utils \
     curl \
-    ufw \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy Squid configuration
-RUN touch /etc/squid/squid.conf \
-    && curl -o /etc/squid/squid.conf https://raw.githubusercontent.com/Bhavya031/proxy/refs/heads/main/squid.conf
+RUN curl -o /etc/squid/squid.conf https://raw.githubusercontent.com/Bhavya031/proxy/refs/heads/main/squid.conf
 
-# Expose Squid default port
+# Expose Squid's default port
 EXPOSE 3128
 
-# Allow Squid to start correctly
+# Verify Squid configuration
 RUN squid -k parse
-
-# Add a health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s \
-  CMD squid -k check || exit 1
 
 # Start Squid service
 CMD ["squid", "-N"]
+
